@@ -48,7 +48,7 @@ After you're finished please remove all the comments and instructions!
 
 <!-- PROJECT DESCRIPTION -->
 
-# 📖 OOP-school-library <a name="about-project"></a>
+# 📖 School-library <a name="about-project"></a>
 
 > An app that was built with Ruby using OOP principles. The app allows you to add new students, teachers, books and save records of who borrowed a given book and when.
 
