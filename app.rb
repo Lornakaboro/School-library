@@ -60,7 +60,7 @@ def create_teacher(people)
   name = gets.chomp
   print 'Specialization: '
   specialization = gets.chomp
-  person = Teacher.new(age, name, specialization)
+  person = Teacher.new(age,specialization,name: name)
   people.push(person)
   puts 'Person created successfully!'
   puts
