@@ -14,15 +14,14 @@ def list_all_books(books)
 end
 
 def list_all_people(people)
-    puts 'List of people:'
+  puts 'List of people:'
+  puts
+  people.each_with_index do |person, index|
+    person_type = person.instance_of?(Student) ? '[Student]' : '[Teacher]'
+    puts "#{index + 1}. #{person_type} Name: #{person.name}, ID: #{person.id}"
     puts
-    people.each_with_index do |person, index|
-      person_type = person.class == Student ? '[Student]' : '[Teacher]'
-      puts "#{index + 1}. #{person_type} Name: #{person.name}, ID: #{person.id}"
-      puts
-    end
   end
-  
+end
 
 def create_person(people)
   puts 'Select person type:'
@@ -55,16 +54,16 @@ def create_student(people)
 end
 
 def create_teacher(people)
-print 'Age: '
-age = gets.chomp.to_i
-print 'Name: '
-name = gets.chomp
-print 'Specialization: '
-specialization = gets.chomp
-person = Teacher.new(age, name, specialization)
-people.push(person)
-puts 'Person created successfully!'
-puts
+  print 'Age: '
+  age = gets.chomp.to_i
+  print 'Name: '
+  name = gets.chomp
+  print 'Specialization: '
+  specialization = gets.chomp
+  person = Teacher.new(age, name, specialization)
+  people.push(person)
+  puts 'Person created successfully!'
+  puts
 end
 
 def create_book(books)
@@ -127,12 +126,18 @@ def list_rentals(rentals)
   end
 end
 
-def print_rental_info(rental, index)
-  book_info = "Book: #{rental.book.title} by #{rental.book.author}"
-  person_info = "Person: #{rental.person.name}"
-  date_info = "Date: #{rental.date}"
-  puts "#{index + 1}. #{book_info} - #{person_info} - #{date_info}"
+def print_rental_info(rentals, person_id)
+  puts "Rentals for Person ID: #{person_id}"
   puts
+  rentals.each_with_index do |rental, index|
+    next unless rental.person.id == person_id
+
+    book_info = "Book: #{rental.book.title} by #{rental.book.author}"
+    person_info = "Person: #{rental.person.name}"
+    date_info = "Date: #{rental.date}"
+    puts "#{index + 1}. #{book_info} - #{person_info} - #{date_info}"
+    puts
+  end
 end
 
 def quit
