@@ -60,7 +60,7 @@ def create_teacher(people)
   name = gets.chomp
   print 'Specialization: '
   specialization = gets.chomp
-  person = Teacher.new(age,specialization,name: name)
+  person = Teacher.new(age, specialization, name: name)
   people.push(person)
   puts 'Person created successfully!'
   puts
@@ -121,23 +121,23 @@ end
 def list_rentals(rentals)
   puts 'List of rentals:'
   puts
-  rentals.each_with_index do |rental, index|
-    print_rental_info(rental, index)
+  puts 'Enter the Person ID to see their rentals:'
+  person_id = gets.chomp.to_i
+  puts
+
+  rentals.each_with_index do |rental, _index|
+    print_rental_info(rental, person_id)
   end
 end
 
-def print_rental_info(rentals, person_id)
-  puts "Rentals for Person ID: #{person_id}"
-  puts
-  rentals.each_with_index do |rental, index|
-    next unless rental.person.id == person_id
+def print_rental_info(rental, person_id)
+  return unless rental.person.id == person_id
 
-    book_info = "Book: #{rental.book.title} by #{rental.book.author}"
-    person_info = "Person: #{rental.person.name}"
-    date_info = "Date: #{rental.date}"
-    puts "#{index + 1}. #{book_info} - #{person_info} - #{date_info}"
-    puts
-  end
+  book_info = "Book: #{rental.book.title} by #{rental.book.author}"
+  person_info = "Person: #{rental.person.name}"
+  date_info = "Date: #{rental.date}"
+  puts "#{rental.person.id}. #{book_info} - #{person_info} - #{date_info}"
+  puts
 end
 
 def quit
