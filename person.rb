@@ -27,7 +27,6 @@ class Person < Nameable
     Rental.new(date, self, book)
   end
 
-
   public
 
   def can_use_services?
