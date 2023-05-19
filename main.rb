@@ -11,6 +11,7 @@ def main
     break if option == 7
   end
 end
+
 def display_menu
   puts 'Library Management System'
   puts '1. List all books'
@@ -22,6 +23,7 @@ def display_menu
   puts '7. Quit'
   print 'Select an option: '
 end
+
 def handle_option(option, books, people, rentals)
   option_actions = {
     1 => -> { list_all_books(books) },

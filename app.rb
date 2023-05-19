@@ -12,6 +12,7 @@ def list_all_books(books)
     puts
   end
 end
+
 def list_all_people(people)
   puts 'List of people:'
   puts
@@ -20,6 +21,7 @@ def list_all_people(people)
     puts
   end
 end
+
 def create_person(people)
   puts 'Select person type:'
   puts '1. Student'
@@ -35,6 +37,7 @@ def create_person(people)
     puts 'Invalid option!'
   end
 end
+
 def create_student(people)
   print 'Age: '
   age = gets.chomp.to_i
@@ -48,6 +51,7 @@ def create_student(people)
   puts 'Person created successfully!'
   puts
 end
+
 def create_teacher(people)
   print 'Age: '
   age = gets.chomp.to_i
@@ -58,6 +62,7 @@ def create_teacher(people)
   puts 'Person created successfully!'
   puts
 end
+
 def create_book(books)
   print 'Title: '
   title = gets.chomp
@@ -67,14 +72,17 @@ def create_book(books)
   puts 'Book created successfully!'
   puts
 end
+
 def create_rental(people, books, rentals)
   selected_book = select_book(books)
   selected_person = select_person(people)
   return unless selected_book && selected_person
+
   print 'Date: '
   date = gets.chomp
   create_rental_entry(date, selected_book, selected_person, rentals)
 end
+
 def select_book(books)
   puts 'Select a book from the following list by number'
   list_all_books(books)
@@ -87,6 +95,7 @@ def select_book(books)
   end
   selected_book
 end
+
 def select_person(people)
   puts 'Select a person from the following list by number (not ID) or create a new person'
   list_all_people(people)
@@ -99,11 +108,13 @@ def select_person(people)
   end
   selected_person
 end
+
 def create_rental_entry(date, selected_book, selected_person, rentals)
   rentals.push(Rental.new(date, selected_book, selected_person))
   puts 'Rental created successfully!'
   puts
 end
+
 def list_rentals(rentals)
   puts 'List of rentals:'
   puts
@@ -111,6 +122,7 @@ def list_rentals(rentals)
     print_rental_info(rental, index)
   end
 end
+
 def print_rental_info(rental, index)
   book_info = "Book: #{rental.book.title} by #{rental.book.author}"
   person_info = "Person: #{rental.person.name}"
@@ -118,6 +130,7 @@ def print_rental_info(rental, index)
   puts "#{index + 1}. #{book_info} - #{person_info} - #{date_info}"
   puts
 end
+
 def quit
   puts 'Goodbye!'
 end
