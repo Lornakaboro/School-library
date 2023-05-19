@@ -14,13 +14,15 @@ def list_all_books(books)
 end
 
 def list_all_people(people)
-  puts 'List of people:'
-  puts
-  people.each_with_index do |person, index|
-    puts "#{index + 1}. Name: #{person.name}, ID: #{person.id}"
+    puts 'List of people:'
     puts
+    people.each_with_index do |person, index|
+      person_type = person.class == Student ? '[Student]' : '[Teacher]'
+      puts "#{index + 1}. #{person_type} Name: #{person.name}, ID: #{person.id}"
+      puts
+    end
   end
-end
+  
 
 def create_person(people)
   puts 'Select person type:'
@@ -64,7 +66,6 @@ people.push(person)
 puts 'Person created successfully!'
 puts
 end
-
 
 def create_book(books)
   print 'Title: '
