@@ -53,15 +53,18 @@ def create_student(people)
 end
 
 def create_teacher(people)
-  print 'Age: '
-  age = gets.chomp.to_i
-  print 'Name: '
-  name = gets.chomp
-  person = Teacher.new(age, '', name: name)
-  people.push(person)
-  puts 'Person created successfully!'
-  puts
+print 'Age: '
+age = gets.chomp.to_i
+print 'Name: '
+name = gets.chomp
+print 'Specialization: '
+specialization = gets.chomp
+person = Teacher.new(age, name, specialization)
+people.push(person)
+puts 'Person created successfully!'
+puts
 end
+
 
 def create_book(books)
   print 'Title: '
