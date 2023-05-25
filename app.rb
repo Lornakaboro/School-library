@@ -1,136 +1,188 @@
+require_relative 'person'
 require_relative 'teacher'
 require_relative 'student'
 require_relative 'book'
 require_relative 'rental'
-require_relative 'data_management_system'
 require 'json'
 
 class App
+  attr_accessor :persons, :books, :rentals
+
   def initialize
-    @books = []
-    @peoples = []
-    @rentals = []
-    @writer = Writer.new
-    @peoples_path = './data/peoples.json'
-    @rentals_path = './data/rentals.json'
-    @books_path = './data/books.json'
+    generate_data_files_if_missing
+    @persons = JSON.parse(File.read('./data/people.json'))
+    @books = JSON.parse(File.read('./data/books.json'))
+    @rentals = JSON.parse(File.read('./data/rentals.json'))
   end
 
-  def handle_writing
-    puts 'Writing data and preparing exit...'
-    write_peoples
-    write_books
-    write_rentals
+  def generate_data_files_if_missing
+    generate_people_file unless File.exist?('./data/people.json')
+    generate_books_file unless File.exist?('./data/books.json')
+    generate_rentals_file unless File.exist?('./data/rentals.json')
   end
 
-  def read_people(json_data)
-    json_data.each_line do |line|
-      data = JSON.parse(line)
-      if line.include?('specialization')
-        teacher = Teacher.new(data['age'], data['specialization'], name: data['name'], parent_permission: true)
-        @peoples << teacher
-      else
-        student = Student.new(data['age'], name: data['name'], parent_permission: data['parent_permission'])
-        @peoples << student
-      end
+  def generate_people_file
+    default_people = [].to_json
+    File.write('./data/people.json', default_people)
+  end
+
+  def generate_books_file
+    default_books = [].to_json
+    File.write('./data/books.json', default_books)
+  end
+
+  def generate_rentals_file
+    default_rentals = [].to_json
+    File.write('./data/rentals.json', default_rentals)
+  end
+
+  def line_return
+    puts '---------------------------'
+  end
+
+  def list_books
+    @books = JSON.parse(File.read('./data/books.json')) if File.exist?('./data/books.json')
+    if @books.empty?
+      puts 'There is no book.'
+      line_return
+      return
+    end
+    @books.each do |book|
+      puts "Title: #{book['title']} , Author: #{book['author']}"
+      line_return
     end
   end
 
-  def read_books(json_data)
-    json_data.each_line do |line|
-      data = JSON.parse(line)
-      book = Book.new(data['title'], data['author'])
-      @books << book
+  def print_persons_by_index
+    @persons.each_with_index do |person, index|
+      puts "#{index}) [#{person.type}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
   end
 
-  def read_rentals(json_data)
-    json_data.each_line do |line|
-      data = JSON.parse(line)
-      rental = Book.new(data['title'], data['author'])
-      @rentals << rental
+  def print_persons
+    @persons.each do |person|
+      puts "[#{person.type}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
   end
 
-  def load_data
-    if File.exist?(@peoples_path)
-      File.open(@peoples_path, 'r') do |file|
-        people_data = file.read
-        read_people(people_data)
-      end
+  def list_people
+    @persons = JSON.parse(File.read('./data/people.json')) if File.exist?('./data/people.json')
+    if @persons.empty?
+      puts 'There are no people.'
+      line_return
+      return
     end
-    if File.exist?(@books_path)
-      File.open(@books_path, 'r') do |file|
-        books_data = file.read
-        read_books(books_data)
-      end
-    end
-    return unless File.exist?(@rentals_path)
-
-    File.open(@rentals_path, 'r') do |file|
-      rentals_data = file.read
-      read_rentals(rentals_data)
+    @persons.each do |person|
+      person_type = person['class'] == 'Student' ? 'Student' : 'Teacher'
+      puts "[#{person_type}] Name: #{person['name']}, ID: #{person['id']}, Age: #{person['age']}"
+      line_return
     end
   end
 
-  def list_all_books
-    @books.each { |book| puts "Title:- #{book.title}   Author:- #{book.author} \n" }
+  def add_student
+    print 'Age: '
+    age = gets.chomp.to_i
+    print 'Name: '
+    name = gets.chomp
+    print 'Has parent permission? [Y/N]:  '
+    permission = gets.chomp.downcase
+    student = Student.new(name: name, age: age, parent_permission: permission)
+    @persons << student.to_h.merge(class: 'Student')
+    File.write('./data/people.json', JSON.generate(@persons))
+    puts 'Student created successfully!'
+    line_return
   end
 
-  def list_all_peoples
-    @peoples.each do |people|
-      puts "[#{people.class.name}] Name:- #{people.name} ID:- #{people.id} Age:- #{people.age} \n"
+  def add_teacher
+    print 'Age: '
+    age = gets.chomp.to_i
+    print 'Name: '
+    name = gets.chomp.capitalize
+    teacher = Teacher.new(name: name, age: age)
+    @persons << teacher.to_h.merge(class: 'Teacher') # Convert teacher to hash and merge class attribute
+    File.write('./data/people.json', JSON.generate(@persons))
+    puts 'Teacher successfully created'
+    line_return
+  end
+
+  def add_person
+    puts 'Do you want to create a student (1) or a teacher (2)? [Input the number]: '
+    input = gets.chomp.to_i
+
+    case input
+    when 1
+      add_student
+    when 2
+      add_teacher
+    else
+      puts 'Invalid input, person not created'
+      line_eturn
     end
   end
 
-  def write_books
-    @writer.book_writer(@books, @books_path)
-  end
-
-  def write_rentals
-    @writer.rentals_writer(@rentals, @rentals_path)
-  end
-
-  def write_peoples
-    @writer.people_writer(@peoples, @peoples_path)
-  end
-
-  def create_teacher(age, specialization, name, parent_permission)
-    @peoples << Teacher.new(age, specialization, name: name, parent_permission: parent_permission)
-  end
-
-  def create_student(age, name, parent_permission)
-    @peoples << Student.new(age, name: name, parent_permission: parent_permission)
-  end
-
-  def create_book
-    puts 'Title:-'
+  def add_book
+    puts 'Title:'
     title = gets.chomp
-    puts 'Author:-'
+    puts 'Author:'
     author = gets.chomp
-    @books << Book.new(title, author)
+    book = Book.new(title, author).to_h
+    @books << book
+    File.write('./data/books.json', JSON.generate(@books))
+    puts "Book created successfuly!\n\n"
+    line_return
   end
 
-  def create_rental
-    puts 'Select a book from the following list by number'
-    @books.each.with_index { |book, idx| puts "#{idx}) Book #{book.title} by #{book.author}" }
-    book_index = gets.chomp.to_i
-    puts 'Select a person from the following list by number(not ID)'
-    @peoples.each.with_index do |person, idx|
-      puts "#{idx}) [#{person.class.name}] Name #{person.name}, ID #{person.id}, Age #{person.age}"
+  def add_rental
+    if @books.empty?
+      puts 'No book record found'
+    elsif @persons.empty?
+      puts 'No person record found'
+    else
+      puts 'Select a book from the following list by number'
+      @books.each_with_index do |book, index|
+        puts "#{index}) Title: #{book['title']}, Author: #{book['author']}"
+      end
+
+      book_index = gets.chomp.to_i
+
+      puts 'Select a person from the following list by number (not ID)'
+      @persons.each_with_index do |person, index|
+        puts "#{index}) [#{person['class']}] Name: #{person['name']}, ID: #{person['id']}, Age: #{person['age']}"
+      end
+
+      person_index = gets.chomp.to_i
+
+      puts 'Add date:'
+      date = gets.chomp
+      rental = Rental.new(date, @books[book_index], @persons[person_index])
+      @rentals << rental.to_h
+      File.write('./data/rentals.json', JSON.generate(@rentals))
+      puts "Rental created successfully!\n\n"
     end
-    person_index = gets.chomp.to_i
-    puts 'Date:- e.g dd-mm-yyyy'
-    date = gets.chomp
-    @rentals << Rental.new(@books[book_index], @peoples[person_index], date)
   end
 
-  def list_person_rentals(person_id)
-    @peoples.each do |person|
-      if person.id == person_id
-        puts 'Rentals:-'
-        person.rentals.each { |rental| puts "Date #{rental.date}, Book #{rental.book.title} by #{rental.book.author}" }
+  def list_rentals
+    @rentals = JSON.parse(File.read('./data/rentals.json')) if File.exist?('./data/rentals.json')
+
+    if @rentals.empty?
+      puts 'There are currently no rentals.'
+      line_return
+      return
+    end
+
+    print 'ID of person: '
+    id = gets.chomp.to_i
+
+    rentals = @rentals.filter { |rental| rental['person']['id'] == id }
+
+    if rentals.empty?
+      puts 'There are currently no rentals for this person!'
+    else
+      puts 'Rentals:'
+      rentals.each do |rental|
+        puts "Date: #{rental['date']}, Book '#{rental['book']['title']}' by #{rental['book']['author']}"
       end
     end
+    line_return
   end
 end
