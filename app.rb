@@ -1,145 +1,136 @@
-require_relative 'person'
-require_relative 'classroom'
+require_relative 'teacher'
+require_relative 'student'
 require_relative 'book'
 require_relative 'rental'
-require_relative 'student'
-require_relative 'teacher'
-def list_all_books(books)
-  puts 'List of books:'
-  puts
-  books.each_with_index do |book, index|
-    puts "#{index + 1}. Title: #{book.title}, Author: #{book.author}"
-    puts
+require_relative 'data_management_system'
+require 'json'
+
+class App
+  def initialize
+    @books = []
+    @peoples = []
+    @rentals = []
+    @writer = Writer.new
+    @peoples_path = './data/peoples.json'
+    @rentals_path = './data/rentals.json'
+    @books_path = './data/books.json'
   end
-end
 
-def list_all_people(people)
-  puts 'List of people:'
-  puts
-  people.each_with_index do |person, index|
-    person_type = person.instance_of?(Student) ? '[Student]' : '[Teacher]'
-    puts "#{index + 1}. #{person_type} Name: #{person.name}, ID: #{person.id}"
-    puts
+  def handle_writing
+    puts 'Writing data and preparing exit...'
+    write_peoples
+    write_books
+    write_rentals
   end
-end
 
-def create_person(people)
-  puts 'Select person type:'
-  puts '1. Student'
-  puts '2. Teacher'
-  print 'Choice: '
-  type = gets.chomp.to_i
-  case type
-  when 1
-    create_student(people)
-  when 2
-    create_teacher(people)
-  else
-    puts 'Invalid option!'
+  def read_people(json_data)
+    json_data.each_line do |line|
+      data = JSON.parse(line)
+      if line.include?('specialization')
+        teacher = Teacher.new(data['age'], data['specialization'], name: data['name'], parent_permission: true)
+        @peoples << teacher
+      else
+        student = Student.new(data['age'], name: data['name'], parent_permission: data['parent_permission'])
+        @peoples << student
+      end
+    end
   end
-end
 
-def create_student(people)
-  print 'Age: '
-  age = gets.chomp.to_i
-  print 'Name: '
-  name = gets.chomp
-  print 'Has parent permission? (Y/N): '
-  permission = gets.chomp == 'Y'
-  student_classroom = Classroom.new('Classroom 1')
-  person = Student.new(student_classroom, age, name: name, parent_permission: permission)
-  people.push(person)
-  puts 'Person created successfully!'
-  puts
-end
-
-def create_teacher(people)
-  print 'Age: '
-  age = gets.chomp.to_i
-  print 'Name: '
-  name = gets.chomp
-  print 'Specialization: '
-  specialization = gets.chomp
-  person = Teacher.new(age, specialization, name: name)
-  people.push(person)
-  puts 'Person created successfully!'
-  puts
-end
-
-def create_book(books)
-  print 'Title: '
-  title = gets.chomp
-  print 'Author: '
-  author = gets.chomp
-  books.push(Book.new(title, author))
-  puts 'Book created successfully!'
-  puts
-end
-
-def create_rental(people, books, rentals)
-  selected_book = select_book(books)
-  selected_person = select_person(people)
-  return unless selected_book && selected_person
-
-  print 'Date: '
-  date = gets.chomp
-  create_rental_entry(date, selected_book, selected_person, rentals)
-end
-
-def select_book(books)
-  puts 'Select a book from the following list by number'
-  list_all_books(books)
-  print 'Book number: '
-  book_index = gets.chomp.to_i
-  selected_book = books[book_index - 1]
-  if selected_book.nil?
-    puts 'Invalid book number!'
-    return nil
+  def read_books(json_data)
+    json_data.each_line do |line|
+      data = JSON.parse(line)
+      book = Book.new(data['title'], data['author'])
+      @books << book
+    end
   end
-  selected_book
-end
 
-def select_person(people)
-  puts 'Select a person from the following list by number (not ID) or create a new person'
-  list_all_people(people)
-  print 'Person number: '
-  person_index = gets.chomp.to_i
-  selected_person = people[person_index - 1]
-  if selected_person.nil?
-    puts 'Invalid person number!'
-    return nil
+  def read_rentals(json_data)
+    json_data.each_line do |line|
+      data = JSON.parse(line)
+      rental = Book.new(data['title'], data['author'])
+      @rentals << rental
+    end
   end
-  selected_person
-end
 
-def create_rental_entry(date, selected_book, selected_person, rentals)
-  rentals.push(Rental.new(date, selected_book, selected_person))
-  puts 'Rental created successfully!'
-  puts
-end
+  def load_data
+    if File.exist?(@peoples_path)
+      File.open(@peoples_path, 'r') do |file|
+        people_data = file.read
+        read_people(people_data)
+      end
+    end
+    if File.exist?(@books_path)
+      File.open(@books_path, 'r') do |file|
+        books_data = file.read
+        read_books(books_data)
+      end
+    end
+    return unless File.exist?(@rentals_path)
 
-def list_rentals(rentals)
-  puts 'List of rentals:'
-  puts
-  puts 'Enter the Person ID to see their rentals:'
-  person_id = gets.chomp.to_i
-  puts
-
-  rentals.each_with_index do |rental, _index|
-    print_rental_info(rental, person_id)
+    File.open(@rentals_path, 'r') do |file|
+      rentals_data = file.read
+      read_rentals(rentals_data)
+    end
   end
-end
 
-def print_rental_info(rental, person_id)
-  return unless rental.person.id == person_id
+  def list_all_books
+    @books.each { |book| puts "Title:- #{book.title}   Author:- #{book.author} \n" }
+  end
 
-  book_info = "Book: #{rental.book.title} by #{rental.book.author}"
-  person_info = "Person: #{rental.person.name}"
-  date_info = "Date: #{rental.date}"
-  puts "#{rental.person.id}. #{book_info} - #{person_info} - #{date_info}"
-  puts
-end
+  def list_all_peoples
+    @peoples.each do |people|
+      puts "[#{people.class.name}] Name:- #{people.name} ID:- #{people.id} Age:- #{people.age} \n"
+    end
+  end
 
-def quit
-  puts 'Goodbye!'
+  def write_books
+    @writer.book_writer(@books, @books_path)
+  end
+
+  def write_rentals
+    @writer.rentals_writer(@rentals, @rentals_path)
+  end
+
+  def write_peoples
+    @writer.people_writer(@peoples, @peoples_path)
+  end
+
+  def create_teacher(age, specialization, name, parent_permission)
+    @peoples << Teacher.new(age, specialization, name: name, parent_permission: parent_permission)
+  end
+
+  def create_student(age, name, parent_permission)
+    @peoples << Student.new(age, name: name, parent_permission: parent_permission)
+  end
+
+  def create_book
+    puts 'Title:-'
+    title = gets.chomp
+    puts 'Author:-'
+    author = gets.chomp
+    @books << Book.new(title, author)
+  end
+
+  def create_rental
+    puts 'Select a book from the following list by number'
+    @books.each.with_index { |book, idx| puts "#{idx}) Book #{book.title} by #{book.author}" }
+    book_index = gets.chomp.to_i
+    puts 'Select a person from the following list by number(not ID)'
+    @peoples.each.with_index do |person, idx|
+      puts "#{idx}) [#{person.class.name}] Name #{person.name}, ID #{person.id}, Age #{person.age}"
+    end
+    person_index = gets.chomp.to_i
+    puts 'Date:- e.g dd-mm-yyyy'
+    date = gets.chomp
+    @rentals << Rental.new(@books[book_index], @peoples[person_index], date)
+  end
+
+  def list_person_rentals(person_id)
+    @peoples.each do |person|
+      if person.id == person_id
+        puts 'Rentals:-'
+        person.rentals.each { |rental| puts "Date #{rental.date}, Book #{rental.book.title} by #{rental.book.author}" }
+      end
+    end
+  end
 end
