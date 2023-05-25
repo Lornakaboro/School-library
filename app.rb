@@ -4,7 +4,7 @@ require_relative 'student'
 require_relative 'book'
 require_relative 'rental'
 require 'json'
-
+# rubocop:disable Metrics/ClassLength
 class App
   attr_accessor :persons, :books, :rentals
 
@@ -132,6 +132,7 @@ class App
     line_return
   end
 
+  # rubocop:disable Metrics/MethodLength
   def add_rental
     if @books.empty?
       puts 'No book record found'
@@ -161,6 +162,7 @@ class App
     end
   end
 
+  # rubocop:enable Metrics/MethodLength
   def list_rentals
     @rentals = JSON.parse(File.read('./data/rentals.json')) if File.exist?('./data/rentals.json')
 
@@ -186,3 +188,4 @@ class App
     line_return
   end
 end
+# rubocop:enable Metrics/ClassLength
