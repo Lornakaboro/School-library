@@ -4,36 +4,36 @@ require_relative 'student'
 require_relative 'book'
 require_relative 'rental'
 require 'json'
-# rubocop:disable Metrics/ClassLength
+
 class App
   attr_accessor :persons, :books, :rentals
 
   def initialize
     generate_data_files_if_missing
-    @persons = JSON.parse(File.read('./data/people.json'))
-    @books = JSON.parse(File.read('./data/books.json'))
-    @rentals = JSON.parse(File.read('./data/rentals.json'))
+    @persons = JSON.parse(File.read('people.json'))
+    @books = JSON.parse(File.read('books.json'))
+    @rentals = JSON.parse(File.read('rentals.json'))
   end
 
   def generate_data_files_if_missing
-    generate_people_file unless File.exist?('./data/people.json')
-    generate_books_file unless File.exist?('./data/books.json')
-    generate_rentals_file unless File.exist?('./data/rentals.json')
+    generate_people_file unless File.exist?('people.json')
+    generate_books_file unless File.exist?('books.json')
+    generate_rentals_file unless File.exist?('rentals.json')
   end
 
   def generate_people_file
     default_people = [].to_json
-    File.write('./data/people.json', default_people)
+    File.write('people.json', default_people)
   end
 
   def generate_books_file
     default_books = [].to_json
-    File.write('./data/books.json', default_books)
+    File.write('books.json', default_books)
   end
 
   def generate_rentals_file
     default_rentals = [].to_json
-    File.write('./data/rentals.json', default_rentals)
+    File.write('rentals.json', default_rentals)
   end
 
   def line_return
@@ -41,7 +41,7 @@ class App
   end
 
   def list_books
-    @books = JSON.parse(File.read('./data/books.json')) if File.exist?('./data/books.json')
+    @books = JSON.parse(File.read('books.json')) if File.exist?('books.json')
     if @books.empty?
       puts 'There is no book.'
       line_return
@@ -66,7 +66,7 @@ class App
   end
 
   def list_people
-    @persons = JSON.parse(File.read('./data/people.json')) if File.exist?('./data/people.json')
+    @persons = JSON.parse(File.read('people.json')) if File.exist?('people.json')
     if @persons.empty?
       puts 'There are no people.'
       line_return
@@ -88,7 +88,7 @@ class App
     permission = gets.chomp.downcase
     student = Student.new(name: name, age: age, parent_permission: permission)
     @persons << student.to_h.merge(class: 'Student')
-    File.write('./data/people.json', JSON.generate(@persons))
+    File.write('people.json', JSON.generate(@persons))
     puts 'Student created successfully!'
     line_return
   end
@@ -100,7 +100,7 @@ class App
     name = gets.chomp.capitalize
     teacher = Teacher.new(name: name, age: age)
     @persons << teacher.to_h.merge(class: 'Teacher') # Convert teacher to hash and merge class attribute
-    File.write('./data/people.json', JSON.generate(@persons))
+    File.write('people.json', JSON.generate(@persons))
     puts 'Teacher successfully created'
     line_return
   end
@@ -127,12 +127,11 @@ class App
     author = gets.chomp
     book = Book.new(title, author).to_h
     @books << book
-    File.write('./data/books.json', JSON.generate(@books))
+    File.write('books.json', JSON.generate(@books))
     puts "Book created successfuly!\n\n"
     line_return
   end
 
-  # rubocop:disable Metrics/MethodLength
   def add_rental
     if @books.empty?
       puts 'No book record found'
@@ -157,14 +156,13 @@ class App
       date = gets.chomp
       rental = Rental.new(date, @books[book_index], @persons[person_index])
       @rentals << rental.to_h
-      File.write('./data/rentals.json', JSON.generate(@rentals))
+      File.write('rentals.json', JSON.generate(@rentals))
       puts "Rental created successfully!\n\n"
     end
   end
 
-  # rubocop:enable Metrics/MethodLength
   def list_rentals
-    @rentals = JSON.parse(File.read('./data/rentals.json')) if File.exist?('./data/rentals.json')
+    @rentals = JSON.parse(File.read('rentals.json')) if File.exist?('rentals.json')
 
     if @rentals.empty?
       puts 'There are currently no rentals.'
@@ -188,4 +186,3 @@ class App
     line_return
   end
 end
-# rubocop:enable Metrics/ClassLength
