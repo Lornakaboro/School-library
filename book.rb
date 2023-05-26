@@ -23,4 +23,3 @@ class Book
     }
   end
 end
-

@@ -15,10 +15,10 @@ RSpec.describe Book do
   describe '#to_h' do
     it 'returns a hash representation of the book' do
       expect(book.to_h).to eq({
-        title: 'Book Title',
-        author: 'Author Name',
-        rentals: []
-      })
+                                title: 'Book Title',
+                                author: 'Author Name',
+                                rentals: []
+                              })
     end
   end
 end
